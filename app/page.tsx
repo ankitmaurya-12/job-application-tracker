@@ -1,3 +1,4 @@
+import Footer from "@/components/Footer";
 import ImageTabs from "@/components/image-tabs";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Briefcase, CheckCircle2, TrendingUp } from "lucide-react";
@@ -33,10 +34,14 @@ export default function Home() {
           </div>
         </section>
 
+        <section className="bg-gradient-to-b from-white to-gray-25 py-8"></section>
+
+
         {/*Hero Images Section*/}
         {/* created another component casue it is CSR */}
         <ImageTabs/>
         
+
         {/* Features section  */}
         <section className="border-t bg-white py-24">
           <div className=" mx-auto container px-4">
@@ -80,7 +85,31 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        <section className="bg-gradient-to-b from-white to-gray-50 py-8"></section>
+
+        <section className="bg-gray-50 py-20">
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="text-3xl font-bold text-black mb-4">
+              Ready to streamline your job search?
+            </h2>
+            <p className="text-muted-foreground text-lg mb-8">
+              Join thousands of professionals who trust our platform
+            </p>
+            <Link href="/signup">
+            <Button size="lg" className="h-12 px-8 py-4 text-lg font-medium">
+              Get Started Today
+            </Button>
+            </Link>
+          </div>
+        </section>
+        
+        {/* Transiton section  */}
+
       </main>
+
+        {/* Footer Section */}
+        <Footer />
     </div>
   );
 }
