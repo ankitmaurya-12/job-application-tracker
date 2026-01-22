@@ -86,8 +86,10 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Transiton section  */}
         <section className="bg-gradient-to-b from-white to-gray-50 py-8"></section>
 
+        {/* Call to Action Section */}
         <section className="bg-gray-50 py-20">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl font-bold text-black mb-4">
@@ -96,16 +98,14 @@ export default function Home() {
             <p className="text-muted-foreground text-lg mb-8">
               Join thousands of professionals who trust our platform
             </p>
-            <Link href="/signup">
+            <Link href="/sign-up">
             <Button size="lg" className="h-12 px-8 py-4 text-lg font-medium">
               Get Started Today
             </Button>
             </Link>
           </div>
         </section>
-        
-        {/* Transiton section  */}
-
+      
       </main>
 
         {/* Footer Section */}

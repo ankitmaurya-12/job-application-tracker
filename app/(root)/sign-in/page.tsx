@@ -22,7 +22,7 @@ const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const [loading, setLoading] = useState("false");
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const router = useRouter();
@@ -109,7 +109,7 @@ const SignIn = () => {
               type="submit"
               className="w-full bg-primary text-white hover:bg-primary/90"
             >
-              Sign In
+             {loading ? "Verifying Credential ...":"Sign In"}
             </Button>
             <p className="text-center text-sm text-gray-600">
               Don't have an account ?{" "}
