@@ -19,7 +19,7 @@ export default function Home() {
               intuitive platform.
             </p>
             <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-              <Link href="/signup">
+              <Link href="/sign-up">
                 <Button
                   size="lg"
                   className="h-12 px-8 py-4 text-lg font-medium"
