@@ -3,6 +3,7 @@ import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { MongoClient } from "mongodb";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { initializeUserBoard } from "../init-user-board";
 
 const client = new MongoClient(process.env.MONGODB_URI!);
 
@@ -25,6 +26,20 @@ export const auth = betterAuth({
         clientSecret: process.env.LINKEDIN_CLIENT_SECRET as string, 
     }, 
   },
+  databaseHooks:{
+    user:{
+      create: {
+        after: async (user) =>{
+
+          // Initialize user board after user creation
+
+          if(user.id){
+            await initializeUserBoard(user.id);
+          }
+        }
+      }
+    }
+  }
 });
 
 export async function getSession(){
