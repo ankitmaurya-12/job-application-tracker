@@ -1,12 +1,13 @@
 "use client";
 
-import { Board, Column } from "@/lib/models/models.types";
+import { Board, Column, JobApplication } from "@/lib/models/models.types";
 import { Award, Calendar, CheckCircle2, Mic, MoreVertical, Trash2, XCircle } from "lucide-react";
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { Button } from "./ui/button";
 import CreateJobApplicationDialog from "./jobApplicationDialog";
+import JobApplicationCard from "./Job-application-card";
 
 interface KanbanBoardProps {
   board: Board;
@@ -44,12 +45,17 @@ function DroppableColumn({
   column,
   config,
   boardId,
+  sortedColumns
 }: {
   column: Column;
   config: colConfig;
   boardId: string;
+  sortedColumns: Column[];
 }) {
   // console.log(column)
+
+  const sortedJobs = column.jobApplications?.sort((a, b) => a.order - b.order) || [];
+
   return (
   <Card className="min-w-[300px] flex-shrink-0 shadow-md p-0">
     <CardHeader className={`${config.color} text-white rounded-t-3xl pb-3 pt-3`}>
@@ -75,14 +81,38 @@ function DroppableColumn({
     </CardHeader>
 
     <CardContent className="space-y-4 bg-gray-50/50 min-h-[400px] rounded-b-3xl p-4">
+
+      {sortedJobs.map((job, key) => (
+        <SortableJobCard 
+        key={key} 
+        job={{...job, columnId: job.columnId || column._id}}
+        columns={sortedColumns}
+        />
+      ))}
+       
       <CreateJobApplicationDialog columnId={column._id} boardId={boardId} />
     </CardContent>
   </Card>
   );
 }
 
+function SortableJobCard({job, columns}: {job:JobApplication, columns: Column[]}) {
+
+  return (
+    <div>
+      <JobApplicationCard job={job} columns={columns}/>
+    </div>
+  );
+}
+
+
 function KabanBoard({ board, userId }: KanbanBoardProps) {
   const columns = board.columns;
+
+  // console.log("Rendering Kanban Board for user: ", userId);
+  // console.log(columns[0].jobApplications);
+
+  const sortedColumns = columns?.sort((a, b) => a.order - b.order) || [];
 
   return (
     <>
@@ -99,6 +129,7 @@ function KabanBoard({ board, userId }: KanbanBoardProps) {
               column={col}
               config={config}
               boardId={board._id}
+              sortedColumns={sortedColumns}
               />
             );
           })}

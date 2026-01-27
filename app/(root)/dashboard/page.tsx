@@ -22,6 +22,9 @@ export default async function Dashoard () {
     name: "Job Hunt"
   }).populate({
     path : 'columns',
+    populate:{
+      path:"jobApplications"
+    }
   })
 
   // console.log(board);

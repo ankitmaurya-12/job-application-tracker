@@ -22,13 +22,7 @@ interface CreateJobApplicationDialogProps {
   boardId: string;
 }
 
-export default function CreateJobApplicationDialog({
-  columnId,
-  boardId,
-}: CreateJobApplicationDialogProps) {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-
-  const [formData, setFormData] = useState({
+const INITIAL_FORM_DATA = {
     company: "",
     position: "",
     location: "",
@@ -37,16 +31,25 @@ export default function CreateJobApplicationDialog({
     tags: "",
     description: "",
     notes: "",
-  });
+  };
+
+export default function CreateJobApplicationDialog({
+  columnId,
+  boardId,
+}: CreateJobApplicationDialogProps) {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  const [formData, setFormData] = useState(INITIAL_FORM_DATA);
 
 const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try{
-        const result = createJobApplication({...formData, columnId, boardId, tags: formData.tags.split(",").map(tag => tag.trim()).filter((tag) => tag.length > 0)});
+        const result = await createJobApplication({...formData, columnId, boardId, tags: formData.tags.split(",").map(tag => tag.trim()).filter((tag) => tag.length > 0)});
 
-        if(!result.error){
-
+        if(result && !result.error){
+          setFormData(INITIAL_FORM_DATA);
+          setIsOpen(false);
         }else{
             console.error("Error creating job application: ", result.error);
         }
