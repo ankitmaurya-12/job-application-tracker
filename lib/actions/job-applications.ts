@@ -4,6 +4,7 @@ import { connect } from "http2";
 import { getSession } from "../auth/auth";
 import connectDB from "../db";
 import { Board, Column, JobApplication } from "../models";
+import { revalidatePath } from "next/cache";
 
 interface JobApplicationData {
     company: string;
@@ -90,6 +91,10 @@ export async function createJobApplication(data: JobApplicationData) {
         $push: { jobApplications: jobApplication._id }
     }
     )
+
+    // Return the created job application data 
+    revalidatePath("/dashboard");
+    //this forces Next.js to revalidate the /dashboard page so that the new job application appears immediately.
 
     return {data: JSON.parse(JSON.stringify(jobApplication))};
 

@@ -27,7 +27,7 @@ function JobApplicationCard({ job, columns }: JobApplicationProps) {
                 {job.company}
               </p>
               {job.description && (
-                <p className="text-xs text-mu  mb-2 line-clamp-2">
+                <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
                   {job.description}
                 </p>
               )}
