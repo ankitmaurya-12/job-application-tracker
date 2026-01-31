@@ -1,7 +1,9 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import { Column, JobApplication } from "@/lib/models/models.types";
 import { Card, CardContent } from "./ui/card";
-import { Edit2, ExternalLink, MoreVertical, Trash2 } from "lucide-react";
+import { Edit2, ExternalLink, MoreVertical, Plus, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,6 +11,19 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Button } from "./ui/button";
+import { deleteJobApplication, updateJobApplication } from "@/lib/actions/job-applications";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
+import { Label } from "./ui/label";
+import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
 
 interface JobApplicationProps {
   job: JobApplication;
@@ -16,6 +31,60 @@ interface JobApplicationProps {
 }
 
 function JobApplicationCard({ job, columns }: JobApplicationProps) {
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [formData, setFormData] = useState({
+    company: job.company || "",
+    position: job.position || "",
+    location: job.location || "",
+    salary: job.salary || "",
+    jobUrl: job.jobUrl || "",
+    tags: job.tags ? job.tags.join(", ") : "",
+    description: job.description || "",
+    notes: job.notes || "",
+  });
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const result = await updateJobApplication(job._id, {
+        ...formData,
+        tags: formData.tags
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter((tag) => tag.length > 0),
+      });
+      if (result && !result.error) {
+        setIsEditing(false);
+      } else {
+        console.error("Error updating job application: ", result.error);
+      }
+    } catch (error) {
+      console.error("Error submitting form: ", error);
+    }
+  }; 
+
+  async function handleDelete() {
+    try {
+      const result = await deleteJobApplication(job._id);
+      if (result.error) {
+        console.error("Failed to delete job application:", result.error);
+      }
+    } catch (err) {
+      console.error("Failed to delete job application:", err);
+    }
+  }
+
+  async function handleMove(newColumnId: string) {
+    try {
+      const result = await updateJobApplication(job._id, {
+        columnId: newColumnId,
+      });
+    } catch (err) {
+      console.error("Failed to move job application:", err);
+    }
+  }
+
   return (
     <>
       <Card className="cursor-pointer transition-discrete hover:shadow-lg bg-white shadow-sm">
@@ -52,7 +121,7 @@ function JobApplicationCard({ job, columns }: JobApplicationProps) {
                   rel="noreferrer"
                   className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
                 >
-                  <ExternalLink className="h-3 w-3"/>
+                  <ExternalLink className="h-3 w-3" />
                 </a>
               )}
             </div>
@@ -60,13 +129,17 @@ function JobApplicationCard({ job, columns }: JobApplicationProps) {
             <div className="flex items-start gap-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant={"ghost"} size={"icon"} className="h-6 w-6 p-0">
+                  <Button
+                    variant={"ghost"}
+                    size={"icon"}
+                    className="h-6 w-6 p-0"
+                  >
                     <MoreVertical className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem>
-                    <Edit2 className="mr-2 h-4 w-4"/>
+                  <DropdownMenuItem onClick={() => setIsEditing(true)}>
+                    <Edit2 className="mr-2 h-4 w-4" />
                     Edit
                   </DropdownMenuItem>
                   {columns.length > 1 && (
@@ -74,8 +147,9 @@ function JobApplicationCard({ job, columns }: JobApplicationProps) {
                       {columns
                         .filter((c) => c._id !== job.columnId)
                         .map((column, key) => (
-                          <DropdownMenuItem 
-                          key={key}
+                          <DropdownMenuItem
+                            key={key}
+                            onClick={() => handleMove(column._id)}
                           >
                             Move to {column.name}
                           </DropdownMenuItem>
@@ -83,8 +157,8 @@ function JobApplicationCard({ job, columns }: JobApplicationProps) {
                     </>
                   )}
 
-                  <DropdownMenuItem className="text-destructive">
-                    <Trash2 className="mr-2 h-4 w-4"/> 
+                  <DropdownMenuItem className="text-destructive" onClick={handleDelete}>
+                    <Trash2 className="mr-2 h-4 w-4" />
                     Delete
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -93,6 +167,133 @@ function JobApplicationCard({ job, columns }: JobApplicationProps) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Dialog after clicked on the Edit button */}
+      <Dialog open={isEditing} onOpenChange={setIsEditing}>
+        <DialogContent className=" max-w-2xl rounded-xs sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Add Job Application</DialogTitle>
+            <DialogDescription>Track a new job application.</DialogDescription>
+          </DialogHeader>
+
+          {/* Form fields for job application would go here */}
+          <form action="space-y-4" onSubmit={handleUpdate}>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="company">Company *</Label>
+                  <Input
+                    id="compay"
+                    required
+                    className="w-full border border-gray-300 rounded-xs p-2"
+                    value={formData.company}
+                    onChange={(e) =>
+                      setFormData({ ...formData, company: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="position">Positon *</Label>
+                  <Input
+                    id="position"
+                    required
+                    className="w-full border border-gray-300 rounded-xs p-2"
+                    value={formData.position}
+                    onChange={(e) =>
+                      setFormData({ ...formData, position: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="location">Location</Label>
+                  <Input
+                    id="location"
+                    className="w-full border border-gray-300 rounded-xs p-2"
+                    value={formData.location}
+                    onChange={(e) =>
+                      setFormData({ ...formData, location: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="salary">Salary</Label>
+                  <Input
+                    id="salary"
+                    placeholder="e.g., 4-6 LPA"
+                    className="w-full border border-gray-300 rounded-xs p-2"
+                    value={formData.salary}
+                    onChange={(e) =>
+                      setFormData({ ...formData, salary: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="jobUrl">Job URL</Label>
+                <Input
+                  name="jobUrl"
+                  placeholder="https://....."
+                  className="w-full border border-gray-300 rounded-xs p-2"
+                  value={formData.jobUrl}
+                  onChange={(e) =>
+                    setFormData({ ...formData, jobUrl: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="tags">Tags (comma-seprated)</Label>
+                <Input
+                  name="tags"
+                  placeholder="React, Tailwind, NodeJS, SQL, AWS ..."
+                  className="w-full border border-gray-300 rounded-xs p-2"
+                  value={formData.tags}
+                  onChange={(e) =>
+                    setFormData({ ...formData, tags: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  name="description"
+                  rows={3}
+                  placeholder="Brief description about the job ..."
+                  className="w-full border border-gray-300 rounded-xs p-2"
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="notes">Notes</Label>
+                <Textarea
+                  name="notes"
+                  rows={4}
+                  className="w-full border border-gray-300 rounded-xs p-2"
+                  value={formData.notes}
+                  onChange={(e) =>
+                    setFormData({ ...formData, notes: e.target.value })
+                  }
+                />
+              </div>
+
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsEditing(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit">Save Chnages</Button>
+              </DialogFooter>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
