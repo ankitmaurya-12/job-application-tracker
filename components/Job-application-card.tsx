@@ -11,7 +11,10 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Button } from "./ui/button";
-import { deleteJobApplication, updateJobApplication } from "@/lib/actions/job-applications";
+import {
+  deleteJobApplication,
+  updateJobApplication,
+} from "@/lib/actions/job-applications";
 import {
   Dialog,
   DialogContent,
@@ -28,9 +31,15 @@ import { Textarea } from "./ui/textarea";
 interface JobApplicationProps {
   job: JobApplication;
   columns: Column[];
+  //for moving job application between columns
+  dragHandleProps?: React.HTMLAttributes<HTMLElement>;
 }
 
-function JobApplicationCard({ job, columns }: JobApplicationProps) {
+function JobApplicationCard({
+  job,
+  columns,
+  dragHandleProps,
+}: JobApplicationProps) {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [formData, setFormData] = useState({
     company: job.company || "",
@@ -62,7 +71,7 @@ function JobApplicationCard({ job, columns }: JobApplicationProps) {
     } catch (error) {
       console.error("Error submitting form: ", error);
     }
-  }; 
+  };
 
   async function handleDelete() {
     try {
@@ -87,7 +96,7 @@ function JobApplicationCard({ job, columns }: JobApplicationProps) {
 
   return (
     <>
-      <Card className="cursor-pointer transition-discrete hover:shadow-lg bg-white shadow-sm">
+      <Card className="cursor-pointer transition-discrete hover:shadow-lg bg-white shadow-sm" {...dragHandleProps}>
         <CardContent className="p-4">
           <div className="flex justify-between items-start gap-2">
             <div className="flex-1 min-w-0">
@@ -157,7 +166,10 @@ function JobApplicationCard({ job, columns }: JobApplicationProps) {
                     </>
                   )}
 
-                  <DropdownMenuItem className="text-destructive" onClick={handleDelete}>
+                  <DropdownMenuItem
+                    className="text-destructive"
+                    onClick={handleDelete}
+                  >
                     <Trash2 className="mr-2 h-4 w-4" />
                     Delete
                   </DropdownMenuItem>
