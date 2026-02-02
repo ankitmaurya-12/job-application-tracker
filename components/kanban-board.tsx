@@ -186,7 +186,7 @@ function KabanBoard({ board, userId }: KanbanBoardProps) {
     for(const column of sortedColumns){
       const jobs = column.jobApplications.sort((a,b) => a.order - b.order) || [];
       const jobIndex = jobs.findIndex((j) => j._id === activeId);
-      if(jobIndex !== undefined && jobIndex > -1){
+      if(jobIndex !== -1){
         draggedJob = jobs[jobIndex];
         sourceColumn = column;
         sourceIndex = jobIndex;
@@ -212,7 +212,7 @@ function KabanBoard({ board, userId }: KanbanBoardProps) {
     }else if(targetJob){
       const targetJobColumn =sortedColumns.find((col)=> col.jobApplications.some((j)=> j._id === targetJob._id));
 
-      targetColumnId = targetJob.columnId || targetJobColumn._id || "" ;
+      targetColumnId = targetJob.columnId || targetJobColumn?._id || "" ;
 
       if(!targetColumnId) return;
 
@@ -220,23 +220,23 @@ function KabanBoard({ board, userId }: KanbanBoardProps) {
 
       if(!targetColumnObj) return;
 
-      const allJobsTargetOriginal = targetColumnObj.jobApplications.sort((a,b) => a.order - b.order) || [];
+      const allJobsInTargetOriginal = targetColumnObj.jobApplications.sort((a,b) => a.order - b.order) || [];
       
-      const allJobsInTargetFiltered = allJobsTargetOriginal.filter((j)=> j._id !== activeId || []);
+      const allJobsInTargetFiltered = allJobsInTargetOriginal.filter((j)=> j._id !== activeId) || [];
 
-      const targteIndexInOriginal = allJobsTargetOriginal.findIndex((j)=> j._id === overId);
+      const targetIndexInOriginal = allJobsInTargetOriginal.findIndex((j)=> j._id === overId);
 
-      const targteIndexInFiltered = allJobsInTargetFiltered.findIndex((j)=> j._id === overId);
+      const targetIndexInFiltered = allJobsInTargetFiltered.findIndex((j)=> j._id === overId);
 
-      if(targteIndexInFiltered !== -1) {
+      if(targetIndexInFiltered !== -1) {
         if(sourceColumn._id === targetColumnId){
-          if(sourceIndex < targteIndexInOriginal){
-            newOrder = targteIndexInFiltered +1;
+          if(sourceIndex < targetIndexInOriginal){
+            newOrder = targetIndexInFiltered +1;
           }else{
-            newOrder = targteIndexInFiltered;
+            newOrder = targetIndexInFiltered;
           }
         }else{
-          newOrder = targteIndexInFiltered
+          newOrder = targetIndexInFiltered
         }
       }else{
         newOrder = allJobsInTargetFiltered.length;
@@ -285,12 +285,14 @@ function KabanBoard({ board, userId }: KanbanBoardProps) {
 
       {/* It is to make UI smoother by */}
       <DragOverlay>
-        {activeId ?(
+        {activeId && activeJob ?(
           <div className="opacity-50">
             <JobApplicationCard job={activeJob} columns={sortedColumns} />
           </div>
         ): null}
       </DragOverlay>
+        
+      
     </DndContext>
   );
 }

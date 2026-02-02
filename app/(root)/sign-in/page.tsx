@@ -31,7 +31,7 @@ const SignIn = () => {
     e.preventDefault();
     
     setError("");
-    setLoading("true");
+    setLoading(true);
     
     try {
       const result = await signIn.email({
@@ -49,7 +49,7 @@ const SignIn = () => {
     } catch (err) {
       setError("Error signing in. Please try again.");
     } finally {
-      setLoading("false");
+      setLoading(false);
     }
 
   }

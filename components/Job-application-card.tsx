@@ -52,9 +52,8 @@ function JobApplicationCard({
     notes: job.notes || "",
   });
 
-  const handleUpdate = async (e: React.FormEvent) => {
+  async function handleUpdate(e: React.FormEvent) {
     e.preventDefault();
-
     try {
       const result = await updateJobApplication(job._id, {
         ...formData,
@@ -63,15 +62,14 @@ function JobApplicationCard({
           .map((tag) => tag.trim())
           .filter((tag) => tag.length > 0),
       });
-      if (result && !result.error) {
+
+      if (!result.error) {
         setIsEditing(false);
-      } else {
-        console.error("Error updating job application: ", result.error);
       }
-    } catch (error) {
-      console.error("Error submitting form: ", error);
+    } catch (err) {
+      console.error("Failed to update job application: ", err);
     }
-  };
+  }
 
   async function handleDelete() {
     try {
@@ -96,7 +94,10 @@ function JobApplicationCard({
 
   return (
     <>
-      <Card className="cursor-pointer transition-discrete hover:shadow-lg bg-white shadow-sm" {...dragHandleProps}>
+      <Card
+        className="cursor-pointer transition-discrete hover:shadow-lg bg-white shadow-sm"
+        {...dragHandleProps}
+      >
         <CardContent className="p-4">
           <div className="flex justify-between items-start gap-2">
             <div className="flex-1 min-w-0">

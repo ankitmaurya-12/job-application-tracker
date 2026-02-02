@@ -24,7 +24,7 @@ export async function createJobApplication(data: JobApplicationData) {
     const session = await getSession();
 
     if (!session?.user) {
-        throw new Error("Unauthorized");
+        return { error: "Unauthorized" };
     }
     
     await connectDB();
@@ -44,14 +44,14 @@ export async function createJobApplication(data: JobApplicationData) {
 
 
     if(!company || !position || !columnId || !boardId){
-        throw new Error("Missing required fields");
+      return { error: "Missing required fields" };
     }
     
     // verify board belongs to user
     const board = await Board.findOne({ _id: boardId, userId: session.user.id });
 
     if (!board) {
-        throw new Error("Board not found or unauthorized");
+      return { error: "Board not found" };
     }
 
     // verify column belongs to the user's board
@@ -62,7 +62,7 @@ export async function createJobApplication(data: JobApplicationData) {
     // console.log(column);
 
     if (!column) {
-        throw new Error("Column not found in the specified board");
+      return { error: "Column not found" };
     }
 
     // const maxOrder = (await JobApplication.find({ columnId }).sort({ order: -1 }).limit(1))[0]?.order || 0;
@@ -118,7 +118,7 @@ export async function updateJobApplication(
   const session = await getSession();
 
   if (!session?.user) {
-    throw new Error("Unauthorized");
+    return { error: "Unauthorized" };
   }
 
   await connectDB();
@@ -126,11 +126,11 @@ export async function updateJobApplication(
   const jobApplication = await JobApplication.findById(id);
 
   if (!jobApplication) {
-    throw new Error("Job Application not found");
+    return { error: "Job application not found" };
   }
 
   if (jobApplication.userId.toString() !== session.user.id) {
-    throw new Error("Unauthorized");
+    return { error: "Unauthorized" };
   }
 
   const { columnId, order, ...otherUpdates } = updates;
@@ -174,7 +174,7 @@ export async function updateJobApplication(
 
       const jobsThatNeedToShift = jobsInTargetColumn.slice(order);
 
-      for (const job of jobsInTargetColumn) {
+      for (const job of jobsThatNeedToShift) {
         await JobApplication.findByIdAndUpdate(job._id, {
           $set: { order: job.order + 100 },
         });
@@ -256,7 +256,7 @@ export async function deleteJobApplication( id: string) {
     const session = await getSession();
 
     if (!session?.user) {
-        throw new Error("Unauthorized");
+        return { error: "Unauthorized" };
     }
 
     await connectDB();
@@ -264,11 +264,11 @@ export async function deleteJobApplication( id: string) {
     const jobApplication = await JobApplication.findById(id);
 
     if (!jobApplication) {
-        throw new Error("Job Application not found");
+        return { error: "Job application not found" };
     }
 
     if (jobApplication.userId.toString() !== session.user.id) {
-        throw new Error("Unauthorized");
+      return { error: "Unauthorized" };
     }
 
     

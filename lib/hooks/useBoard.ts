@@ -39,7 +39,7 @@ export function useBoard(initialBoard?: Board | null) {
             for (const col of newColumns) {
                 const jobIndex = col.jobApplications?.findIndex((job) => job._id === jobApplicationId);
 
-                if(jobIndex !== undefined && jobIndex > -1){
+                if (jobIndex !== -1 && jobIndex !== undefined) {
                     jobToMove = col.jobApplications![jobIndex];
                     oldColumnId = col._id;
                     col.jobApplications = col.jobApplications.filter((job) => job._id !== jobApplicationId);
